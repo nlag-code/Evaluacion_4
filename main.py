@@ -16,17 +16,10 @@ def leer_archivo():
 
 def crear_respaldo():
     backup = open(hostname + '.txt', 'w')
-    backup.write(output)
+    backup.write(netmiko_test())
     backup.close()
 
-
-requests.packages.urllib3.disable_warnings()
-
-
-for i in leer_archivo():
-    host = i.rstrip('\n')
-    salida = requests.get(url + host +"/restconf/data/Cisco-IOS-XE-native:native/", verify=False, headers=headers, auth=auth)
-    hostname = salida.json()["Cisco-IOS-XE-native:native"]["hostname"]
+def netmiko_test():
     credenciales = {
         'device_type': 'cisco_ios',
         'host': host,
@@ -37,6 +30,18 @@ for i in leer_archivo():
     }
     net_connect = ConnectHandler(**credenciales)
     output = net_connect.send_command('show run')
+    return output
+
+
+
+requests.packages.urllib3.disable_warnings()
+
+
+for i in leer_archivo():
+    host = i.rstrip('\n')
+    salida = requests.get(url + host +"/restconf/data/Cisco-IOS-XE-native:native/", verify=False, headers=headers, auth=auth)
+    hostname = salida.json()["Cisco-IOS-XE-native:native"]["hostname"]
+    netmiko_test()
     crear_respaldo()
     time.sleep(1)
     print("Respaldo de equipo "+ hostname + " realizado de forma exitosa")
