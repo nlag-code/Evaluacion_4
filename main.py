@@ -43,11 +43,13 @@ requests.packages.urllib3.disable_warnings()
 
 for i in leer_archivo(): # Con este bucle leeremos el archivo hosts donde estan las ip
     host = i.rstrip('\n') # variable donde guardaremos cada ip, le quitamos el salto de linea.
-    salida = requests.get(url + host +"/restconf/data/Cisco-IOS-XE-native:native/", verify=False, headers=headers, auth=auth) # hacemos una consulta get gracias al protocolo restconf conf en los equipos cisco
-    hostname = salida.json()["Cisco-IOS-XE-native:native"]["hostname"] #a la respuesta le filtramos el hostname que es lo que nos interesa
-    netmiko_test() #llamamos a la funcion netmiko para conectarnos al host y lanzar el comando show running config
-    crear_respaldo() # llamamos a la funcion crear respaldo donde creamos un archivo con el nombre del host y guardamos el show run.
-    time.sleep(1) # generamos un tiempo de espera de 1 segundo para que se vea lindo.
-    print("Respaldo de equipo "+ hostname + " realizado de forma exitosa") # Informamos por un mensaje de consola que la tarea fue realizada de forma exitosa.
-
+    try:
+        salida = requests.get(url + host +"/restconf/data/Cisco-IOS-XE-native:native/", verify=False, headers=headers, auth=auth) # hacemos una consulta get gracias al protocolo restconf conf en los equipos cisco
+        hostname = salida.json()["Cisco-IOS-XE-native:native"]["hostname"] #a la respuesta le filtramos el hostname que es lo que nos interesa
+        netmiko_test() #llamamos a la funcion netmiko para conectarnos al host y lanzar el comando show running config
+        crear_respaldo() # llamamos a la funcion crear respaldo donde creamos un archivo con el nombre del host y guardamos el show run.
+        time.sleep(1) # generamos un tiempo de espera de 1 segundo porque se me hizo bonito.
+        print("Respaldo de equipo "+ hostname + " realizado de forma exitosa.") # Informamos por un mensaje de consola que la tarea fue realizada de forma exitosa.
+    except:
+        print("El dispositivo con ip " + host + " no fue encontrado.")
 
